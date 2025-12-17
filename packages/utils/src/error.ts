@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 let set: Set<string>;
 if (process.env.NODE_ENV !== 'production') {
   set = new Set<string>();
@@ -5,7 +7,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function error(...messages: string[]) {
   if (process.env.NODE_ENV !== 'production') {
-    const messageKey = messages.join(' ');
+    const ownerStack = React.captureOwnerStack?.() ?? '';
+    const messageKey = messages.join(' ') + ownerStack;
     if (!set.has(messageKey)) {
       set.add(messageKey);
       console.error(`Base UI: ${messageKey}`);
