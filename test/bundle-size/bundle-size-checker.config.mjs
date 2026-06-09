@@ -9,23 +9,8 @@ import { defineConfig } from '@mui/internal-bundle-size-checker';
 
 const rootDir = path.resolve(import.meta.dirname, '../..');
 
-async function getBaseUiExports() {
-  // Read the package.json to get exports
-  const packageJsonPath = path.join(rootDir, 'packages/react/package.json');
-  const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
-  const packageJson = JSON.parse(packageJsonContent);
-
-  // Get all export paths from @base-ui/react package.json
-  const exports = packageJson.exports;
-  const entrypoints = Object.keys(exports).map((exportKey) => {
-    // Convert from "./accordion" to "@base-ui/react/accordion"
-    const entrypoint = exportKey === '.' ? '@base-ui/react' : `@base-ui/react${exportKey.slice(1)}`;
-    return entrypoint;
-  });
-
-  return entrypoints;
-}
-
+// `@base-ui/utils` can't use `expand` because it relies on a `./*` wildcard export,
+// which the checker collects literally rather than globbing against the filesystem.
 async function getUtilsExports() {
   // Read top-level files to get utils exports
   const utilsDir = path.join(rootDir, 'packages/utils/src');
@@ -62,7 +47,10 @@ async function getUtilsExports() {
  */
 export default defineConfig(async () => {
   return {
-    entrypoints: [...(await getBaseUiExports()), ...(await getUtilsExports())],
+    entrypoints: [
+      { id: '@base-ui/react', import: '@base-ui/react', expand: true },
+      ...(await getUtilsExports()),
+    ],
     upload: !!process.env.CI,
     comment: true,
   };
