@@ -14,7 +14,12 @@ allowBuilds:
 
 engineStrict: true
 updateNotifier: false
-blockExoticSubdeps: true
+# Temporarily disabled for the rolldown build spike. The @mui/internal-code-infra preview from
+# https://github.com/mui/mui-public/pull/1674 is installed from a pkg.pr.new URL, and pkg.pr.new
+# rewrites that package's own workspace deps (the @mui/internal-babel-plugin-* trio) into
+# pkg.pr.new URLs too, which this setting rejects as exotic subdeps.
+# TODO: restore to `true` once code-infra is back on a registry version.
+blockExoticSubdeps: false
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
